@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#FAF7EF">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Splitidu">
+
+<meta property="og:title" content="Splitidu — Just Splitidu">
+<meta property="og:description" content="Split any bill by item, no login, no signup. Add people, add items, done.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="/images/og-image.png">
+
+<meta name="description" content="Splitidu — split any bill by item, no login required.">
+
+<link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png">
+<link rel="apple-touch-icon" href="/images/apple-touch-icon.png">
+
+<title>Splitidu — The easiest way to split expenses</title>
+<style>
+  :root{
+    --paper:#FAF7EF;
+    --ink:#1B1B18;
+    --ink-soft:#5B5850;
+    --line:#D9D4C4;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    background:#E8E4D8;
+    font-family: 'Courier New', ui-monospace, monospace;
+    color:var(--ink);
+    display:flex;
+    justify-content:center;
+    padding:32px 16px;
+  }
+  .sheet{
+    background:var(--paper);
+    width:100%;
+    max-width:440px;
+    padding:28px 26px 34px;
+    position:relative;
+    box-shadow:0 4px 18px rgba(0,0,0,0.12);
+  }
+  .tear{
+    position:absolute;
+    left:0; right:0;
+    height:10px;
+    background:
+      radial-gradient(circle at 8px 0, transparent 6px, var(--paper) 6.5px) repeat-x;
+    background-size:16px 20px;
+  }
+  .tear.top{ top:-1px; background-color:#E8E4D8; }
+  .tear.bottom{ bottom:-1px; transform:rotate(180deg); background-color:#E8E4D8; }
+
+  h1{
+    font-size:18px;
+    letter-spacing:2px;
+    text-align:center;
+    margin:6px 0 2px;
+    font-weight:700;
+  }
+  .sub{
+    text-align:center;
+    font-size:11px;
+    color:var(--ink-soft);
+    letter-spacing:1.5px;
+    margin-bottom:16px;
+  }
+  .rule{
+    border:none;
+    border-top:1px dashed var(--line);
+    margin:16px 0;
+  }
+  label{
+    display:block;
+    font-size:11px;
+    letter-spacing:1px;
+    color:var(--ink-soft);
+    margin-bottom:4px;
+    text-transform:uppercase;
+  }
+  .field{ margin-bottom:14px; }
+  input[type=text], input[type=number]{
+    width:100%;
+    background:transparent;
+    border:none;
+    border-bottom:1px solid var(--line);
+    font-family:inherit;
+    font-size:16px;
+    color:var(--ink);
+    padding:5px 2px;
+    outline:none;
+  }
+  input[type=text]:focus, input[type=number]:focus{
+    border-bottom:1px solid var(--ink);
+  }
+  .row2{ display:flex; gap:14px; }
+  .row2 > div{ flex:1; }
+
+  .people-list{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:8px;
+  }
+  .person-chip{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    border:1px solid var(--line);
+    padding:5px 8px;
+  }
+  .person-chip input[type=text]{
+    border:none;
+    font-size:16px;
+    width:90px;
+    padding:0;
+  }
+  .remove-btn{
+    background:none;
+    border:none;
+    color:var(--ink-soft);
+    font-size:14px;
+    cursor:pointer;
+    line-height:1;
+    padding:0 2px;
+  }
+  .remove-btn:hover{ color:var(--ink); }
+
+  .item-row{
+    padding:10px 0;
+    border-bottom:1px dotted var(--line);
+  }
+  .item-top{
+    display:flex;
+    gap:10px;
+    align-items:center;
+  }
+  .item-top input[type=text]{
+    flex:2;
+    font-size:16px;
+  }
+  .item-top input[type=number]{
+    flex:1;
+    font-size:16px;
+    text-align:right;
+  }
+  .item-assign{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px 12px;
+    margin-top:8px;
+  }
+  .assign-tag{
+    font-size:12px;
+    color:var(--ink-soft);
+    cursor:pointer;
+    user-select:none;
+    padding:2px 6px;
+    border:1px solid var(--line);
+  }
+  .assign-tag.on{
+    color:var(--ink);
+    border-color:var(--ink);
+    font-weight:700;
+  }
+
+  .add-btn, .calc-btn, .pdf-btn, .reset-btn{
+    width:100%;
+    background:transparent;
+    border:1px solid var(--ink);
+    color:var(--ink);
+    font-family:inherit;
+    font-size:12px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    padding:10px;
+    cursor:pointer;
+    margin-top:6px;
+  }
+  .add-btn{
+    border-style:dashed;
+    font-size:11px;
+    padding:8px;
+  }
+  .add-btn:hover{ background:var(--line); }
+  .calc-btn{
+    background:var(--ink);
+    color:var(--paper);
+    margin-top:18px;
+  }
+  .calc-btn:hover{ opacity:0.85; }
+  .pdf-btn, .reset-btn{ margin-top:8px; }
+  .pdf-btn:hover, .reset-btn:hover{ background:var(--line); }
+
+  .result{ display:none; margin-top:8px; }
+  .result.show{ display:block; }
+
+  .line-item{
+    display:flex;
+    justify-content:space-between;
+    font-size:13px;
+    padding:4px 0;
+    color:var(--ink-soft);
+  }
+  .line-item span:first-child{ flex:1; }
+  .line-item.total{
+    color:var(--ink);
+    font-weight:700;
+    font-size:15px;
+    border-top:1px solid var(--ink);
+    margin-top:6px;
+    padding-top:8px;
+  }
+  .split-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    font-size:14px;
+    padding:8px 0;
+    border-bottom:1px dotted var(--line);
+  }
+  .split-row .amt{ font-weight:700; }
+  .split-detail{
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-top:2px;
+  }
+  .barcode{
+    margin-top:18px;
+    height:34px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--ink), var(--ink) 2px,
+      transparent 2px, transparent 5px
+    );
+    opacity:0.85;
+  }
+  .foot{
+    text-align:center;
+    font-size:10px;
+    letter-spacing:2px;
+    color:var(--ink-soft);
+    margin-top:10px;
+  }
+  .warn{
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-top:4px;
+  }
+
+  @media print{
+    body{ background:var(--paper); padding:0; }
+    .sheet{ box-shadow:none; max-width:100%; }
+    .no-print{ display:none !important; }
+    .tear{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="sheet" id="sheet">
+  <div class="tear top"></div>
+
+  <h1>SPLITIDU</h1>
+  <div class="sub">bill in, shares out</div>
+
+  <hr class="rule">
+
+  <div class="no-print" id="formSection">
+    <label>Who's splitting</label>
+    <div class="people-list" id="peopleList"></div>
+    <button class="add-btn" id="addPersonBtn" type="button">+ add person</button>
+
+    <hr class="rule">
+
+    <label>Items</label>
+    <div id="itemsList"></div>
+    <button class="add-btn" id="addItemBtn" type="button">+ add item</button>
+
+    <hr class="rule">
+
+    <div class="row2">
+      <div class="field">
+        <label>Tax</label>
+        <input type="number" id="taxAmt" placeholder="0.00" step="0.01" min="0">
+      </div>
+      <div class="field">
+        <label>Tip (optional)</label>
+        <input type="number" id="tipAmt" placeholder="0.00" step="0.01" min="0">
+      </div>
+    </div>
+    <div class="warn">tax and tip are split proportionally, based on each person's item total</div>
+
+    <button class="calc-btn" id="calcBtn" type="button">split it</button>
+  </div>
+
+  <div class="result" id="resultSection">
+    <div id="itemSummary"></div>
+    <div class="line-item"><span>Subtotal</span><span>₹<span id="rSub">0.00</span></span></div>
+    <div class="line-item"><span>Tax</span><span>₹<span id="rTax">0.00</span></span></div>
+    <div class="line-item" id="rTipRow"><span>Tip</span><span>₹<span id="rTip">0.00</span></span></div>
+    <div class="line-item total"><span>Total</span><span>₹<span id="rTotal">0.00</span></span></div>
+
+    <hr class="rule">
+
+    <div id="splitRows"></div>
+
+    <div class="barcode"></div>
+    <div class="foot">SPLIT · CHILL · REPEAT</div>
+    <div class="foot">THANK YOU</div>
+
+    <button class="pdf-btn no-print" id="imgBtn" type="button">save as image</button>
+    <button class="reset-btn no-print" id="resetBtn" type="button">start over</button>
+  </div>
+
+  <div class="tear bottom"></div>
+</div>
+
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+let people = [];
+let items = [];
+let personIdCounter = 0;
+let itemIdCounter = 0;
+
+function addPerson(name){
+  personIdCounter += 1;
+  people.push({ id: personIdCounter, name: name || '' });
+  renderPeople();
+  renderItems();
+}
+
+function removePerson(id){
+  people = people.filter(p => p.id !== id);
+  items.forEach(it => { it.assigned.delete(id); });
+  renderPeople();
+  renderItems();
+}
+
+function renderPeople(){
+  const list = document.getElementById('peopleList');
+  list.innerHTML = '';
+  people.forEach(p => {
+    const chip = document.createElement('div');
+    chip.className = 'person-chip';
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = 'name';
+    input.value = p.name;
+    input.oninput = (e) => { p.name = e.target.value; renderItems(); };
+    chip.appendChild(input);
+
+    const rm = document.createElement('button');
+    rm.className = 'remove-btn';
+    rm.type = 'button';
+    rm.textContent = '×';
+    rm.onclick = () => removePerson(p.id);
+    chip.appendChild(rm);
+
+    list.appendChild(chip);
+  });
+}
+
+function addItem(){
+  itemIdCounter += 1;
+  const assigned = new Set(people.map(p => p.id)); // default: everyone splits it
+  items.push({ id: itemIdCounter, name: '', price: 0, assigned });
+  renderItems();
+}
+
+function removeItem(id){
+  items = items.filter(it => it.id !== id);
+  renderItems();
+}
+
+function toggleAssign(itemId, personId){
+  const it = items.find(i => i.id === itemId);
+  if(!it) return;
+  if(it.assigned.has(personId)) it.assigned.delete(personId);
+  else it.assigned.add(personId);
+  renderItems();
+}
+
+function renderItems(){
+  const list = document.getElementById('itemsList');
+  list.innerHTML = '';
+  items.forEach(it => {
+    const row = document.createElement('div');
+    row.className = 'item-row';
+
+    const top = document.createElement('div');
+    top.className = 'item-top';
+
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.placeholder = 'item name';
+    nameInput.value = it.name;
+    nameInput.oninput = (e) => { it.name = e.target.value; };
+    top.appendChild(nameInput);
+
+    const priceInput = document.createElement('input');
+    priceInput.type = 'number';
+    priceInput.placeholder = '0.00';
+    priceInput.step = '0.01';
+    priceInput.min = '0';
+    priceInput.value = it.price || '';
+    priceInput.oninput = (e) => { it.price = parseFloat(e.target.value) || 0; };
+    top.appendChild(priceInput);
+
+    const rm = document.createElement('button');
+    rm.className = 'remove-btn';
+    rm.type = 'button';
+    rm.textContent = '×';
+    rm.onclick = () => removeItem(it.id);
+    top.appendChild(rm);
+
+    row.appendChild(top);
+
+    const assignRow = document.createElement('div');
+    assignRow.className = 'item-assign';
+    people.forEach(p => {
+      const tag = document.createElement('span');
+      tag.className = 'assign-tag' + (it.assigned.has(p.id) ? ' on' : '');
+      tag.textContent = p.name.trim() || '(unnamed)';
+      tag.onclick = () => toggleAssign(it.id, p.id);
+      assignRow.appendChild(tag);
+    });
+    row.appendChild(assignRow);
+
+    list.appendChild(row);
+  });
+}
+
+document.getElementById('addPersonBtn').onclick = () => addPerson('');
+document.getElementById('addItemBtn').onclick = () => addItem();
+
+// seed
+addPerson('');
+addPerson('');
+addItem();
+
+document.getElementById('calcBtn').onclick = () => {
+  const named = people.filter(p => p.name.trim().length > 0);
+  if(named.length === 0){
+    alert('Add at least one person with a name.');
+    return;
+  }
+  const validItems = items.filter(it => it.name.trim().length > 0 && it.price > 0);
+  if(validItems.length === 0){
+    alert('Add at least one item with a name and price.');
+    return;
+  }
+
+  const tax = parseFloat(document.getElementById('taxAmt').value) || 0;
+  const tip = parseFloat(document.getElementById('tipAmt').value) || 0;
+
+  const perPerson = {};
+  named.forEach(p => { perPerson[p.id] = 0; });
+
+  validItems.forEach(it => {
+    const assignedNamed = [...it.assigned].filter(id => named.some(p => p.id === id));
+    if(assignedNamed.length === 0) return;
+    const share = it.price / assignedNamed.length;
+    assignedNamed.forEach(id => { perPerson[id] += share; });
+  });
+
+  const subtotal = validItems.reduce((sum, it) => sum + it.price, 0);
+  const total = subtotal + tax + tip;
+
+  const itemSummary = document.getElementById('itemSummary');
+  itemSummary.innerHTML = '';
+  validItems.forEach(it => {
+    const div = document.createElement('div');
+    div.className = 'line-item';
+    div.innerHTML = `<span>${escapeHtml(it.name)}</span><span>₹${it.price.toFixed(2)}</span>`;
+    itemSummary.appendChild(div);
+  });
+
+  document.getElementById('rSub').textContent = subtotal.toFixed(2);
+  document.getElementById('rTax').textContent = tax.toFixed(2);
+  document.getElementById('rTip').textContent = tip.toFixed(2);
+  document.getElementById('rTipRow').style.display = tip > 0 ? 'flex' : 'none';
+  document.getElementById('rTotal').textContent = total.toFixed(2);
+
+  const rows = document.getElementById('splitRows');
+  rows.innerHTML = '';
+
+  named.forEach(p => {
+    const itemTotal = perPerson[p.id] || 0;
+    const proportion = subtotal > 0 ? itemTotal / subtotal : 1 / named.length;
+    const share = itemTotal + proportion * (tax + tip);
+
+    const row = document.createElement('div');
+    row.className = 'split-row';
+    row.innerHTML = `
+      <div>
+        <div>${escapeHtml(p.name)}</div>
+        <div class="split-detail">items ₹${itemTotal.toFixed(2)} + tax/tip ₹${(proportion*(tax+tip)).toFixed(2)}</div>
+      </div>
+      <span class="amt">₹${share.toFixed(2)}</span>
+    `;
+    rows.appendChild(row);
+  });
+
+  document.getElementById('formSection').style.display = 'none';
+  document.getElementById('resultSection').classList.add('show');
+};
+
+document.getElementById('resetBtn').onclick = () => location.reload();
+
+document.getElementById('imgBtn').onclick = () => {
+  const sheet = document.getElementById('sheet');
+  const noPrintEls = sheet.querySelectorAll('.no-print');
+  const tearEls = sheet.querySelectorAll('.tear');
+
+  noPrintEls.forEach(el => el.style.visibility = 'hidden');
+  tearEls.forEach(el => el.style.visibility = 'hidden');
+
+  html2canvas(sheet, { backgroundColor: '#FAF7EF', scale: 2 }).then(canvas => {
+    noPrintEls.forEach(el => el.style.visibility = '');
+    tearEls.forEach(el => el.style.visibility = '');
+
+    const link = document.createElement('a');
+    link.download = 'splitto-receipt.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }).catch(() => {
+    noPrintEls.forEach(el => el.style.visibility = '');
+    tearEls.forEach(el => el.style.visibility = '');
+    alert('Could not generate image. Try again.');
+  });
+};
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+</script>
+
+</body>
+</html>
