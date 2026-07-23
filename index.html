@@ -25,7 +25,7 @@
   :root{
     --paper:#FAF7EF;
     --ink:#1B1B18;
-    --ink-soft:#5B5850;
+    --ink-soft:#433F38;
     --line:#D9D4C4;
   }
   *{ box-sizing:border-box; }
@@ -234,12 +234,13 @@
   .barcode{
     margin-top:18px;
     height:34px;
-    background: repeating-linear-gradient(
-      90deg,
-      var(--ink), var(--ink) 2px,
-      transparent 2px, transparent 5px
-    );
-    opacity:0.85;
+    display:flex;
+    align-items:stretch;
+    gap:2px;
+  }
+  .barcode span{
+    background:var(--ink);
+    display:block;
   }
   .foot{
     text-align:center;
@@ -311,7 +312,7 @@
 
     <div id="splitRows"></div>
 
-    <div class="barcode"></div>
+    <div class="barcode" id="barcode"></div>
     <div class="foot">SPLIT · CHILL · REPEAT</div>
     <div class="foot">THANK YOU</div>
 
@@ -450,6 +451,17 @@ addPerson('');
 addPerson('');
 addItem();
 
+function renderBarcode(){
+  const bc = document.getElementById('barcode');
+  bc.innerHTML = '';
+  const widths = [2,1,3,1,1,2,4,1,2,1,1,3,2,1,4,1,2,2,1,3,1,2,1,4,1,1,2,3,1,2,1,1,4,2,1,3,1,2,1,1];
+  widths.forEach(w => {
+    const bar = document.createElement('span');
+    bar.style.width = (w * 2) + 'px';
+    bc.appendChild(bar);
+  });
+}
+
 document.getElementById('calcBtn').onclick = () => {
   const named = people.filter(p => p.name.trim().length > 0);
   if(named.length === 0){
@@ -513,11 +525,21 @@ document.getElementById('calcBtn').onclick = () => {
     rows.appendChild(row);
   });
 
+  renderBarcode();
+
   document.getElementById('formSection').style.display = 'none';
   document.getElementById('resultSection').classList.add('show');
 };
 
 document.getElementById('resetBtn').onclick = () => location.reload();
+
+function timestampSuffix(){
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  const datePart = `${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`;
+  const timePart = `${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
+  return `${datePart}-${timePart}`;
+}
 
 document.getElementById('imgBtn').onclick = () => {
   const sheet = document.getElementById('sheet');
@@ -532,7 +554,7 @@ document.getElementById('imgBtn').onclick = () => {
     tearEls.forEach(el => el.style.visibility = '');
 
     const link = document.createElement('a');
-    link.download = 'splitto-receipt.png';
+    link.download = `splitidu-receipt-${timestampSuffix()}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
   }).catch(() => {
