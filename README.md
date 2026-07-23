@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./images/og-image.png" alt="Splitidu banner" width="100%" />
+<img src="./images/banner.png" alt="Splitidu banner" width="100%" />
 
 # Splitidu
 
@@ -10,7 +10,6 @@ Split any bill by item — no login, no signup, no data saved anywhere.
 
 [![Live Demo](https://img.shields.io/badge/demo-splitidu.vercel.app-1B1B18?style=flat-square)](https://splitidu.vercel.app)
 [![License: MIT](https://img.shields.io/badge/license-MIT-1B1B18?style=flat-square)](./LICENSE)
-[![Built with](https://img.shields.io/badge/built%20with-HTML%20%2F%20CSS%20%2F%20JS-1B1B18?style=flat-square)](#tech-stack)
 
 </div>
 
