@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./images/banner.png" alt="Splitidu banner" width="300px" />
+<img src="./images/banner.png" alt="Splitidu banner" width="360px" />
 
 # Splitidu
 
